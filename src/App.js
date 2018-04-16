@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import socketIO from "socket.io-client";
-import "./App.css";
 import DataStream from "./data/stream";
 import unpack from "./data/utils";
 
@@ -16,8 +15,9 @@ stream.getSocket().on("m", message => {
 });
 
 class App extends Component {
+
   render() {
-    return <div className="App" />;
+    return <div><p>Chart to appear here!</p></div>
   }
 }
 
