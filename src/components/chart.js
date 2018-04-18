@@ -3,20 +3,7 @@ import socketIO from "socket.io-client";
 import { withFauxDOM } from "react-faux-dom";
 import * as d3 from "d3";
 import DataStream from "../data/stream";
-import unpack from "../data/utils";
-
-// Data source
-/*
-const stream = new DataStream({ client: socketIO });
-stream.subscribe("5~CCCAGG~BTC~USD");
-setTimeout(() => {
-  stream.unsubscribe("5~CCCAGG~BTC~USD");
-}, 10000);
-stream.getSocket().on("m", message => {
-  const msg data unpack(message);
-  if (msg)datansole.log(data);
-});
-*/
+import { unpack, transform } from "../data/utils";
 
 class Chart extends Component {
   static defaultProps = {
@@ -49,8 +36,22 @@ class Chart extends Component {
     const xScale = d3.scaleTime().rangeRound([0, width]);
     const yScale = d3.scaleLinear().rangeRound([height, 0]);
 
+    const parseTime = d3.timeParse("%Y-%m-%dT%H:%M:%S.000Z");
+    const d = new Date(1524036939 * 1000).toISOString();
+    console.log(parseTime(d));
+
+    const line = d3
+      .line()
+      .x(function(d) {
+        return xScale(d.lastUpdate);
+      })
+      .y(function(d) {
+        return yScale(d.price);
+      });
+
     this.stream.on("m", message => {
       const data = unpack(message);
+      const transformedData = transform(data);
       if (data) console.log(data);
     });
 

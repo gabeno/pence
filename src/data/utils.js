@@ -30,4 +30,18 @@ const unpack = str => {
   return false;
 };
 
-export default unpack;
+const extract = data => {
+  const { price, lastUpdate } = data;
+  return {
+    price,
+    lastUpdate
+  };
+};
+
+const transform = data => {
+  let transformedData = {};
+  if (data.price) transformedData["price"] = data.price;
+  return transformedData;
+};
+
+export { unpack, transform };
