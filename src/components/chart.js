@@ -26,8 +26,10 @@ class Chart extends Component {
   constructor(props) {
     super(props);
 
-    this.stream = new DataStream({ client: socketIO });
-    this.stream.subscribe("5~CCCAGG~BTC~USD");
+    this.stream = new DataStream({
+      client: socketIO,
+      channels: "5~CCCAGG~BTC~USD"
+    }).getSocket();
   }
 
   componentDidMount() {
@@ -47,7 +49,7 @@ class Chart extends Component {
     const xScale = d3.scaleTime().rangeRound([0, width]);
     const yScale = d3.scaleLinear().rangeRound([height, 0]);
 
-    this.stream.getSocket().on("m", message => {
+    this.stream.on("m", message => {
       const data = unpack(message);
       if (data) console.log(data);
     });

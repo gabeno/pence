@@ -2,8 +2,9 @@ import { URL } from "./constants";
 
 // eslint-disable-next-line
 class DataStream {
-  constructor({ client } = {}) {
+  constructor({ client, ...channels } = {}) {
     this.socket = this.connect(URL, client);
+    this.socket.emit("SubAdd", { subs: channels });
   }
 
   connect(url, client) {
