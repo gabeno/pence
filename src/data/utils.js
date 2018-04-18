@@ -3,7 +3,7 @@ import { CURRENTAGG, TRADE_FIELDS } from "./constants";
 
 const unpack = str => {
   const values = str.split("~");
-  const type = values.shift();
+  const type = values[0];
 
   if (type === CURRENTAGG) {
     const mask = values.pop();
