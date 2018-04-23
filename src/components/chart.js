@@ -3,7 +3,7 @@ import socketIO from "socket.io-client";
 import { withFauxDOM } from "react-faux-dom";
 import * as d3 from "d3";
 import DataStream from "../data/stream";
-import { unpack, transform } from "../data/utils";
+import { extract, unpack, transform } from "../data/utils";
 
 class Chart extends Component {
   static defaultProps = {
@@ -51,8 +51,9 @@ class Chart extends Component {
 
     this.stream.on("m", message => {
       const data = unpack(message);
-      const transformedData = transform(data);
-      if (data) console.log(data);
+      const extracts = extract(data);
+      // const transformedData = transform(data);
+      if (data) console.log(extracts);
     });
 
     this.props.animateFauxDOM(800);

@@ -1,6 +1,30 @@
 // const constants = require("./constants");
 import { CURRENTAGG, TRADE_FIELDS } from "./constants";
 
+class Cache {
+  /**
+   * A simple class to cache and reuse data
+   * It does not reduce network calls but helps to fill
+   * in gaps in received data.
+   */
+  constructor() {
+    this.store = {};
+  }
+
+  get (key) {
+    if (this.store.hasOwnProperty(key)) {
+      return this.store[key];
+    }
+  }
+
+  set (key, value) {
+    if (value) this.store[key] = value
+    console.log(this.store)
+  }
+}
+
+const cache = new Cache();
+
 const unpack = str => {
   const values = str.split("~");
   const type = values[0];
@@ -31,11 +55,19 @@ const unpack = str => {
 };
 
 const extract = data => {
+  // filter undefined values from source
+  // return only values I want to use
   const { price, lastUpdate } = data;
-  return {
-    price,
-    lastUpdate
+
+  cache.set('price', price);
+  cache.set('lastUpdate', lastUpdate);
+
+  const resObj = {
+    price: cache.get('price'),
+    lastUpdate: cache.get('lastUpdate')
   };
+  console.log(resObj);
+  return resObj;
 };
 
 const transform = data => {
@@ -44,4 +76,4 @@ const transform = data => {
   return transformedData;
 };
 
-export { unpack, transform };
+export { extract, unpack, transform };
