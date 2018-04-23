@@ -18,8 +18,7 @@ class Cache {
   }
 
   set (key, value) {
-    if (value) this.store[key] = value
-    console.log(this.store)
+    if (value) this.store[key] = value;
   }
 }
 
@@ -48,7 +47,7 @@ const unpack = str => {
       }
     }
 
-    return unpacked;
+    return extract(unpacked);
   }
 
   return false;
@@ -64,16 +63,14 @@ const extract = data => {
 
   const resObj = {
     price: cache.get('price'),
-    lastUpdate: cache.get('lastUpdate')
+    lastUpdate: cache.get('lastUpdate') 
   };
-  console.log(resObj);
+  
   return resObj;
 };
 
-const transform = data => {
-  let transformedData = {};
-  if (data.price) transformedData["price"] = data.price;
-  return transformedData;
-};
+const dateFormatter = timestamp => {
+  return (new Date(timestamp * 1000)).toISOString();
+}
 
-export { extract, unpack, transform };
+export { unpack };
