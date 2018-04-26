@@ -59,7 +59,7 @@ const extract = data => {
   const { price, lastUpdate } = data;
 
   cache.set('price', price);
-  cache.set('lastUpdate', lastUpdate);
+  cache.set('lastUpdate', dateFormatter(lastUpdate));
 
   const resObj = {
     price: cache.get('price'),
@@ -70,7 +70,7 @@ const extract = data => {
 };
 
 const dateFormatter = timestamp => {
-  return (new Date(timestamp * 1000)).toISOString();
+  return timestamp * 1000;
 }
 
 export { unpack };

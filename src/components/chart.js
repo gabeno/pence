@@ -26,26 +26,24 @@ class Chart extends Component {
     const margin = { top: 20, right: 20, bottom: 20, left: 40 };
     const width = 960 - margin.left - margin.right;
     const height = 500 - margin.top - margin.bottom;
-    let now = Date.now();
     const duration = 1000;
-    const n = 1000;
-
-    const svg = d3
-      .select(faux)
-      .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform", `translate(${margin.left}, ${margin.top})`);
+    const now = Date.now();
+    const n = 60;
+    const scrollData = d3.range(n).map(() => 0); // initial data
+    const HR_MS = 1*60*60*1000; // chose a more fine grained accuracy?
+    const CEIL_BTC_PRICE = 2000;
+    const MIN_BTC_PRICE = 0;
 
     const xScale = d3
       .scaleTime()
-      .domain([now - n * duration, now - duration])
+      .domain([now - HR_MS, now]) // an hour step
       .range([0, width]);
+
+    // console.log(xScale(1524726494000));
 
     const yScale = d3
       .scaleLinear()
-      .domain([0, 2000])
+      .domain([MIN_BTC_PRICE, CEIL_BTC_PRICE]) // price yet to hit $2000
       .range([height, 0]);
 
     // const parseTime = d3.utcParse("%Y-%m-%dT%H:%M:%S.%LZ");
@@ -53,12 +51,20 @@ class Chart extends Component {
     const line = d3
       .line()
       .x(function(d) {
-        return xScale(d.lastUpdate);
+        return xScale(now);
       })
       .y(function(d) {
-        return yScale(d.price);
+        return yScale(1000);
       })
       .curve(d3.curveBasis);
+
+    const svg = d3
+      .select(faux)
+      .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     svg
       .append('defs')
@@ -71,21 +77,21 @@ class Chart extends Component {
     // add x axis
     const xAxis = svg
       .append('g')
-        .attr('class', 'xaxis')
+        .attr('class', 'x axis')
         .attr('transform', `translate(0, ${height})`)
       .call(d3.axisBottom(xScale));
 
     // add y axis
     const yAxis = svg
       .append('g')
-      .attr('class', 'yaxis')
+        .attr('class', 'y axis')
       .call(d3.axisLeft(yScale));
 
     const path = svg
       .append('g')
         .attr('clip-path', 'url(#clip)')
       .append('path')
-      .datum(1500)
+      .datum(scrollData)
         .attr('class', 'line')
 
     const transition = d3
@@ -93,17 +99,31 @@ class Chart extends Component {
       .duration(duration)
       .ease(d3.easeLinear);
 
-    this.stream.on("m", message => {
+    const drawPath = function(message) {
       const data = unpack(message);
-      if (data) console.log(data);
 
-      // update the domains
-      now = new Date();
-      xScale.domain([now - n * duration, now - duration]);
-      yScale.domain([0, data.price]);
+      if (data) {
+        console.log(data);
+        console.log(path)
+        scrollData.push(data.lastUpdate);
 
-      d3.select('xaxis').transition(transition).call(d3.axisBottom(xScale));
-    });
+        yScale.domain([0, d3.max(scrollData)]);
+        svg
+          .select('.line')
+          .attr('d', line)
+          .attr('transform', null);
+
+        path
+          .transition()
+			    .duration(500)
+			    .ease(d3.easeLinear)
+          .attr("transform", "translate(" + xScale(now - (n - 1) * duration) + ")");
+          
+        scrollData.shift();        
+      }
+    }
+
+    this.stream.on('m', drawPath);
 
     // this.props.animateFauxDOM(800);
   }
