@@ -19,6 +19,28 @@ class Chart extends Component {
       client: socketIO,
       channels: "5~CCCAGG~BTC~USD"
     }).getSocket();
+
+    this.state = {
+      scrollData: d3.range(10).map(() => ({
+        price: 0,
+        lastUpdate: Date.now() }))
+    };
+
+    this.addData = this.addData.bind(this);
+    this.removeData = this.removeData.bind(this);
+  }
+
+  addData(data) {
+    this.setState(prevState => {
+      scrollData: prevState.scrollData.push(data)
+    });
+  }
+
+  removeData() {
+    this.setState(prevState => {
+      prevState.scrollData.shift()
+      scrollData: prevState
+    })
   }
 
   componentDidMount() {
@@ -28,8 +50,7 @@ class Chart extends Component {
     const height = 500 - margin.top - margin.bottom;
     const duration = 1000;
     const now = Date.now();
-    const n = 60;
-    const scrollData = d3.range(n).map(() => 0); // initial data
+    const n = 10;
     const HR_MS = 1*60*60*1000; // chose a more fine grained accuracy?
     const CEIL_BTC_PRICE = 2000;
     const MIN_BTC_PRICE = 0;
@@ -91,7 +112,7 @@ class Chart extends Component {
       .append('g')
         .attr('clip-path', 'url(#clip)')
       .append('path')
-      .datum(scrollData)
+      .datum(this.state.scrollData)
         .attr('class', 'line')
 
     const transition = d3
@@ -99,15 +120,18 @@ class Chart extends Component {
       .duration(duration)
       .ease(d3.easeLinear);
 
-    const drawPath = function(message) {
+    const drawPath = (message) => { // this bound to the class
       const data = unpack(message);
 
       if (data) {
         console.log(data);
-        console.log(path)
-        scrollData.push(data.lastUpdate);
+        // console.log(path)
+        this.addData(data);
+        console.log(this.state.scrollData);
 
-        yScale.domain([0, d3.max(scrollData)]);
+        /*
+        yScale.domain([0, d3.max(this.state.scrollData)]);
+
         svg
           .select('.line')
           .attr('d', line)
@@ -118,8 +142,10 @@ class Chart extends Component {
 			    .duration(500)
 			    .ease(d3.easeLinear)
           .attr("transform", "translate(" + xScale(now - (n - 1) * duration) + ")");
+        */
           
-        scrollData.shift();        
+        this.removeData();
+        console.log(this.state.scrollData);
       }
     }
 
