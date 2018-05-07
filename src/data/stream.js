@@ -1,14 +1,12 @@
+import socketIO from "socket.io-client";
+
 import { URL } from "./constants";
 
 // eslint-disable-next-line
 class DataStream {
-  constructor({ client, ...channels } = {}) {
-    this.socket = this.connect(URL, client);
+  constructor({ ...channels } = {}) {
+    this.socket = this.connect(URL, socketIO);
     this.socket.emit("SubAdd", { subs: channels });
-  }
-
-  connect(url, client) {
-    return client.connect(url);
   }
 
   subscribe(...channels) {
