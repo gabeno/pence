@@ -4,17 +4,17 @@ import { URL } from "./constants";
 
 // eslint-disable-next-line
 class DataStream {
-  constructor({ ...channels } = {}) {
-    this.socket = this.connect(URL, socketIO);
-    this.socket.emit("SubAdd", { subs: channels });
+  constructor() {
+    this.socket = socketIO.connect(URL);
+    this.socket.emit("SubAdd", { subs: ["5~CCCAGG~BTC~USD"] });
   }
 
-  subscribe(...channels) {
-    this.socket.emit("SubAdd", { subs: channels });
+  subscribe() {
+    this.socket.emit("SubAdd", { subs: ["5~CCCAGG~BTC~USD"] });
   }
 
-  unsubscribe(...channels) {
-    this.socket.emit("SubRemove", { subs: channels });
+  unsubscribe() {
+    this.socket.emit("SubRemove", { subs: ["5~CCCAGG~BTC~USD"] });
   }
 
   getSocket() {
