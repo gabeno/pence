@@ -38,12 +38,12 @@ class App extends Component {
   }
 
   render() {
-    const { data, isLoading } = this.state;
+    const { scrollData } = this.state;
 
     return (
       <div className="App">
         <h1>Bitcoin - USD price watch</h1>
-        {/* <LineChart data={data} /> */}
+        <LineChart data={scrollData} />
         <p>
           Price data from <a href="https://www.cryptocompare.com/api/">CryptoCompare</a>.
         </p>
